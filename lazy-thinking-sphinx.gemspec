@@ -4,14 +4,14 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = %q{thinking-sphinx}
+  s.name = %q{lazy-thinking-sphinx}
   s.version = "1.4.6"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Pat Allan"]
+  s.authors = ["Lkhagva Ochirkhuyag"]
   s.date = %q{2011-06-17}
-  s.description = %q{A concise and easy-to-use Ruby library that connects ActiveRecord to the Sphinx search daemon, managing configuration, indexing and searching.}
-  s.email = %q{pat@freelancing-gods.com}
+  s.description = %q{A concise and easy-to-use Ruby library that connects ActiveRecord to the Sphinx search daemon, managing configuration, indexing and searching. Derived from freelancing-gods thinking-sphinx but no AR callbacks nor delta indexes.}
+  s.email = %q{ochkol@reallyenglish.com}
   s.extra_rdoc_files = [
     "README.textile"
   ]
