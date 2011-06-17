@@ -144,10 +144,10 @@ module ThinkingSphinx
     # Special case is the multi-valued attribute that needs some
     # extra configuration. 
     # 
-    def config_value(offset = nil, delta = false)
+    def config_value(offset = nil)
       if type == :multi
         multi_config = include_as_association? ? "field" :
-          source_value(offset, delta).gsub(/\s+/m, " ").strip
+          source_value(offset).gsub(/\s+/m, " ").strip
         "uint #{unique_name} from #{multi_config}"
       else
         unique_name
@@ -209,7 +209,7 @@ module ThinkingSphinx
     
     private
     
-    def source_value(offset, delta)
+    def source_value(offset)
       if is_string?
         return "#{query_source.to_s.dasherize}; #{columns.first.__name}"
       end
@@ -218,10 +218,8 @@ module ThinkingSphinx
 
       if query_source == :ranged_query
         query += query_clause
-        query += " AND #{query_delta.strip}" if delta
         "ranged-query; #{query}; #{range_query}"
       else
-        query += "WHERE #{query_delta.strip}" if delta
         "query; #{query}"
       end
     end
@@ -242,15 +240,6 @@ FROM #{quote_table_name base_assoc.table} #{association_joins}
     def query_clause
       foreign_key = foreign_key_for_mva base_association_for_mva
       "WHERE #{foreign_key} >= $start AND #{foreign_key} <= $end"
-    end
-    
-    def query_delta
-      foreign_key = foreign_key_for_mva base_association_for_mva
-      <<-SQL
-#{foreign_key} IN (SELECT #{quote_column model.primary_key}
-FROM #{model.quoted_table_name}
-WHERE #{@source.index.delta_object.clause(model, true)})
-      SQL
     end
     
     def range_query

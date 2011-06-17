@@ -53,25 +53,6 @@ module ThinkingSphinx
       source
     end
     
-    def to_riddle_for_delta(offset, position)
-      source = Riddle::Configuration::SQLSource.new(
-        "#{index.delta_name}_#{position}", adapter.sphinx_identifier
-      )
-      source.parent = "#{index.core_name}_#{position}"
-      
-      set_source_database_settings  source
-      set_source_fields             source
-      set_source_attributes         source, offset, true
-      set_source_settings           source
-      set_source_sql                source, offset, true
-      
-      source
-    end
-    
-    def delta?
-      !@index.delta_object.nil?
-    end
-    
     # Gets the association stack for a specific key.
     # 
     def association(key)
@@ -107,18 +88,18 @@ module ThinkingSphinx
       end
     end
     
-    def set_source_attributes(source, offset, delta = false)
+    def set_source_attributes(source, offset)
       available_attributes.each do |attrib|
-        source.send(attrib.type_to_config) << attrib.config_value(offset, delta)
+        source.send(attrib.type_to_config) << attrib.config_value(offset)
       end
     end
     
-    def set_source_sql(source, offset, delta = false)
-      source.sql_query        = to_sql(:offset => offset, :delta => delta).gsub(/\n/, ' ')
-      source.sql_query_range  = to_sql_query_range(:delta => delta)
+    def set_source_sql(source, offset)
+      source.sql_query        = to_sql(:offset => offset).gsub(/\n/, ' ')
+      source.sql_query_range  = to_sql_query_range
       source.sql_query_info   = to_sql_query_info(offset)
       
-      source.sql_query_pre += send(!delta ? :sql_query_pre_for_core : :sql_query_pre_for_delta)
+      source.sql_query_pre += []
       
       if @index.local_options[:group_concat_max_len]
         source.sql_query_pre << "SET SESSION group_concat_max_len = #{@index.local_options[:group_concat_max_len]}"

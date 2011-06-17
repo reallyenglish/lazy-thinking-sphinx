@@ -1,5 +1,3 @@
-require 'thinking_sphinx/active_record/attribute_updates'
-require 'thinking_sphinx/active_record/delta'
 require 'thinking_sphinx/active_record/has_many_association'
 require 'thinking_sphinx/active_record/has_many_association_with_scopes'
 require 'thinking_sphinx/active_record/scopes'
@@ -94,10 +92,6 @@ module ThinkingSphinx
           def defined_indexes=(value)
             @defined_indexes = value
           end
-          
-          def sphinx_delta?
-            self.sphinx_indexes.any? { |index| index.delta? }
-          end
         end
       end
       
@@ -144,16 +138,6 @@ module ThinkingSphinx
       #     # fields ...
       #     
       #     has created_at, updated_at
-      #   end
-      #
-      # One last feature is the delta index. This requires the model to
-      # have a boolean field named 'delta', and is enabled as follows:
-      #
-      #   define_index do
-      #     # fields ...
-      #     # attributes ...
-      #     
-      #     set_property :delta => true
       #   end
       #
       # Check out the more detailed documentation for each of these methods
@@ -208,7 +192,6 @@ module ThinkingSphinx
         index = ThinkingSphinx::Index::Builder.generate self, name, &block
 
         unless sphinx_indexes.any? { |i| i.name == index.name }
-          add_sphinx_callbacks_and_extend(index.delta?)
           insert_sphinx_index index
         end
       end
@@ -228,10 +211,6 @@ module ThinkingSphinx
         sphinx_indexes && sphinx_indexes.length > 0
       end
       
-      def delta_indexed_by_sphinx?
-        sphinx_indexes && sphinx_indexes.any? { |index| index.delta? }
-      end
-      
       def sphinx_index_names
         define_indexes
         sphinx_indexes.collect(&:all_names).flatten
@@ -240,11 +219,6 @@ module ThinkingSphinx
       def core_index_names
         define_indexes
         sphinx_indexes.collect(&:core_name)
-      end
-      
-      def delta_index_names
-        define_indexes
-        sphinx_indexes.select(&:delta?).collect(&:delta_name)
       end
       
       def to_riddle
@@ -286,54 +260,12 @@ module ThinkingSphinx
           index eldest_indexed_ancestor
       end
       
-      # Temporarily disable delta indexing inside a block, then perform a
-      # single rebuild of index at the end.
-      #
-      # Useful when performing updates to batches of models to prevent
-      # the delta index being rebuilt after each individual update.
-      #
-      # In the following example, the delta index will only be rebuilt
-      # once, not 10 times.
-      #
-      #   SomeModel.suspended_delta do
-      #     10.times do
-      #       SomeModel.create( ... )
-      #     end
-      #   end
-      #
-      def suspended_delta(reindex_after = true, &block)
-        define_indexes
-        original_setting = ThinkingSphinx.deltas_suspended?
-        ThinkingSphinx.deltas_suspended = true
-        begin
-          yield
-        ensure
-          ThinkingSphinx.deltas_suspended = original_setting
-          self.index_delta if reindex_after
-        end
-      end
-      
       private
             
       def local_sphinx_indexes
         sphinx_indexes.select { |index|
           index.model == self
         }
-      end
-      
-      def add_sphinx_callbacks_and_extend(delta = false)
-        unless indexed_by_sphinx?
-          after_destroy :toggle_deleted
-          
-          include ThinkingSphinx::ActiveRecord::AttributeUpdates
-        end
-        
-        if delta && !delta_indexed_by_sphinx?
-          include ThinkingSphinx::ActiveRecord::Delta
-          
-          before_save   :toggle_delta
-          after_commit  :index_delta
-        end
       end
       
       def eldest_indexed_ancestor
@@ -353,20 +285,6 @@ module ThinkingSphinx
       true
     end
         
-    def toggle_deleted
-      return unless ThinkingSphinx.updates_enabled?
-      
-      self.class.core_index_names.each do |index_name|
-        self.class.delete_in_index index_name, self.sphinx_document_id
-      end
-      self.class.delta_index_names.each do |index_name|
-        self.class.delete_in_index index_name, self.sphinx_document_id
-      end if self.class.delta_indexed_by_sphinx? && toggled_delta?
-      
-    rescue ::ThinkingSphinx::ConnectionError
-      # nothing
-    end
-    
     # Returns the unique integer id for the object. This method uses the
     # attribute hash to get around ActiveRecord always mapping the #id method
     # to whatever the real primary key is (which may be a unique string hash).

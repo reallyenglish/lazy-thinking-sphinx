@@ -75,8 +75,6 @@ class Person < ActiveRecord::Base
     
     has :id, :as => :latitude
     has :id, :as => :longitude
-    
-    set_property :delta => true
   end
 end
 
@@ -125,8 +123,6 @@ class Beta < ActiveRecord::Base
     
     has :id, :as => :lat
     has :id, :as => :lon
-    
-    set_property :delta => true
   end
   
   def excerpts

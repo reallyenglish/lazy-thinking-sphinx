@@ -340,7 +340,7 @@ module ThinkingSphinx
       #   
       # == Handling a Stale Index
       #
-      # Especially if you don't use delta indexing, you risk having records in
+      # You risk having records in
       # the Sphinx index that are no longer in the database. By default, those 
       # will simply come back as nils:
       #

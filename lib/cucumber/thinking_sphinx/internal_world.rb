@@ -60,8 +60,6 @@ module Cucumber
         config.query_log_file     = "#{temporary_directory}/searchd.query.log"
         config.pid_file           = "#{temporary_directory}/searchd.pid"
         config.searchd_file_path  = "#{temporary_directory}/indexes/"
-        
-        ::ThinkingSphinx.suppress_delta_output = true
       end
       
       def configure_cleanup
@@ -99,13 +97,9 @@ module Cucumber
       end
       
       def prepare_data
-        ::ThinkingSphinx.deltas_enabled = false
-        
         load_files migrations_directory
         load_files models_directory
         load_files fixtures_directory
-        
-        ::ThinkingSphinx.deltas_enabled = true
       end
       
       def load_files(path)

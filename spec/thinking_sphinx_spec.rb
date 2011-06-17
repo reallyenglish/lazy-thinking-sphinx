@@ -47,47 +47,6 @@ describe ThinkingSphinx do
     end
   end
   
-  describe '.deltas_enabled?' do
-    it "should index deltas by default" do
-      ThinkingSphinx.deltas_enabled?.should be_true
-    end
-  end
-  
-  describe '.deltas_enabled=' do
-    it "should disable delta indexing" do
-      ThinkingSphinx.deltas_enabled = false
-      ThinkingSphinx.deltas_enabled?.should be_false
-    end
-  
-    it "should enable delta indexing" do
-      ThinkingSphinx.deltas_enabled = false
-      ThinkingSphinx.deltas_enabled?.should be_false
-      ThinkingSphinx.deltas_enabled = true
-      ThinkingSphinx.deltas_enabled?.should be_true
-    end
-  end
-  
-  describe '.updates_enabled?' do
-    it "should update indexes by default" do
-      ThinkingSphinx.updates_enabled = nil
-      ThinkingSphinx.updates_enabled?.should be_true
-    end
-  end
-  
-  describe '.updates_enabled=' do
-    it "should disable index updating" do
-      ThinkingSphinx.updates_enabled = false
-      ThinkingSphinx.updates_enabled?.should be_false
-    end
-  
-    it "should enable index updating" do
-      ThinkingSphinx.updates_enabled = false
-      ThinkingSphinx.updates_enabled?.should be_false
-      ThinkingSphinx.updates_enabled = true
-      ThinkingSphinx.updates_enabled?.should be_true
-    end
-  end
-  
   describe '.sphinx_running?' do
     it "should always say Sphinx is running if flagged as being on a remote machine" do
       ThinkingSphinx.remote_sphinx = true

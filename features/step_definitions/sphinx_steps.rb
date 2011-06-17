@@ -18,10 +18,6 @@ When "I stop Sphinx" do
   ThinkingSphinx::Configuration.instance.controller.stop
 end
 
-When /^I (enable|disable) delta updates$/ do |mode|
-  ThinkingSphinx.deltas_enabled = (mode == 'enable')
-end
-
 When /^I process the (\w+) index$/ do |index|
   ThinkingSphinx::Configuration.instance.controller.index index
 end

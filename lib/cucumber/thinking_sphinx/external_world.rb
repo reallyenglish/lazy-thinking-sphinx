@@ -3,7 +3,7 @@ require 'thinking_sphinx/test'
 module Cucumber
   module ThinkingSphinx
     class ExternalWorld
-      def initialize(suppress_delta_output = true)
+      def initialize
         ::ThinkingSphinx::Test.init
         ::ThinkingSphinx::Test.start_with_autostop
       end

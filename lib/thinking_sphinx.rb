@@ -1,6 +1,5 @@
 require 'thread'
 require 'active_record'
-require 'after_commit'
 require 'yaml'
 require 'riddle'
 
@@ -24,7 +23,6 @@ require 'thinking_sphinx/source'
 require 'thinking_sphinx/rails_additions'
 require 'thinking_sphinx/search'
 require 'thinking_sphinx/search_methods'
-require 'thinking_sphinx/deltas'
 
 require 'thinking_sphinx/adapters/abstract_adapter'
 require 'thinking_sphinx/adapters/mysql_adapter'
@@ -79,9 +77,7 @@ module ThinkingSphinx
   @@sphinx_mutex          = Mutex.new
   @@context               = nil
   @@define_indexes        = true
-  @@deltas_enabled        = nil
   @@updates_enabled       = nil
-  @@suppress_delta_output = false
   @@remote_sphinx         = false
   @@use_group_by_shortcut = nil
   
@@ -125,87 +121,6 @@ module ThinkingSphinx
   def self.define_indexes=(value)
     mutex.synchronize do
       @@define_indexes = value
-    end
-  end
-  
-  # Check if delta indexing is enabled/disabled.
-  #
-  def self.deltas_enabled?
-    if @@deltas_enabled.nil?
-      mutex.synchronize do
-        if @@deltas_enabled.nil?
-          @@deltas_enabled = (
-            ThinkingSphinx::Configuration.environment != "test"
-          )
-        end
-      end
-    end
-    
-    @@deltas_enabled && !deltas_suspended?
-  end
-  
-  # Enable/disable delta indexing.
-  #
-  #   ThinkingSphinx.deltas_enabled = false
-  #
-  def self.deltas_enabled=(value)
-    mutex.synchronize do
-      @@deltas_enabled = value
-    end
-  end
-
-  # Check if delta indexing is suspended.
-  #
-  def self.deltas_suspended?
-    if Thread.current[:thinking_sphinx_deltas_suspended].nil?
-      Thread.current[:thinking_sphinx_deltas_suspended] = false
-    end
-    
-    Thread.current[:thinking_sphinx_deltas_suspended]
-  end
-
-  # Suspend/resume delta indexing.
-  #
-  #   ThinkingSphinx.deltas_suspended = false
-  #
-  def self.deltas_suspended=(value)
-    Thread.current[:thinking_sphinx_deltas_suspended] = value
-  end
-
-  # Check if updates are enabled. True by default, unless within the test
-  # environment.
-  #
-  def self.updates_enabled?
-    if @@updates_enabled.nil?
-      mutex.synchronize do
-        if @@updates_enabled.nil?
-          @@updates_enabled = (
-            ThinkingSphinx::Configuration.environment != "test"
-          )
-        end
-      end
-    end
-    
-    @@updates_enabled
-  end
-
-  # Enable/disable updates to Sphinx
-  #
-  #   ThinkingSphinx.updates_enabled = false
-  #
-  def self.updates_enabled=(value)
-    mutex.synchronize do
-      @@updates_enabled = value
-    end
-  end
-
-  def self.suppress_delta_output?
-    @@suppress_delta_output
-  end
-
-  def self.suppress_delta_output=(value)
-    mutex.synchronize do
-      @@suppress_delta_output = value
     end
   end
   

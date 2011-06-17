@@ -3,7 +3,7 @@ require 'thinking_sphinx/index/faux_column'
 
 module ThinkingSphinx
   class Index
-    attr_accessor :name, :model, :sources, :delta_object
+    attr_accessor :name, :model, :sources
     
     # Create a new index instance by passing in the model it is tied to, and
     # a block to build it with (optional but recommended). For documentation
@@ -15,8 +15,6 @@ module ThinkingSphinx
     #     indexes login, email
     #     
     #     has created_at
-    #     
-    #     set_property :delta => true
     #   end
     #
     def initialize(model, &block)
@@ -24,7 +22,6 @@ module ThinkingSphinx
       @model        = model
       @sources      = []
       @options      = {}
-      @delta_object = nil
     end
     
     def fields
@@ -39,15 +36,8 @@ module ThinkingSphinx
       "#{name}_core"
     end
     
-    def delta_name
-      "#{name}_delta"
-    end
-    
     def all_names
-      names  = [core_name]
-      names << delta_name if delta?
-      
-      names
+      [core_name]
     end
     
     def self.name_for(model)
@@ -75,13 +65,8 @@ module ThinkingSphinx
       all_index_options
     end
     
-    def delta?
-      !@delta_object.nil?
-    end
-    
     def to_riddle(offset)
       indexes = [to_riddle_for_core(offset)]
-      indexes << to_riddle_for_delta(offset) if delta?
       indexes << to_riddle_for_distributed
     end
     
@@ -93,10 +78,6 @@ module ThinkingSphinx
     
     def utf8?
       options[:charset_type] == "utf-8"
-    end
-    
-    def sql_query_pre_for_delta
-      [""]
     end
     
     def config
@@ -117,22 +98,9 @@ module ThinkingSphinx
       index
     end
     
-    def to_riddle_for_delta(offset)
-      index = Riddle::Configuration::Index.new delta_name
-      index.parent = core_name
-      index.path = File.join config.searchd_file_path, index.name
-      
-      sources.each_with_index do |source, i|
-        index.sources << source.to_riddle_for_delta(offset, i)
-      end
-      
-      index
-    end
-    
     def to_riddle_for_distributed
       index = Riddle::Configuration::DistributedIndex.new name
       index.local_indexes << core_name
-      index.local_indexes.unshift delta_name if delta?
       index
     end
     

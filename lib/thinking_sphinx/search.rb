@@ -670,7 +670,7 @@ module ThinkingSphinx
     end
     
     # Turn :index_weights => { "foo" => 2, User => 1 } into :index_weights =>
-    # { "foo" => 2, "user_core" => 1, "user_delta" => 1 }
+    # { "foo" => 2, "user_core" => 1}
     # 
     def index_weights
       weights = options[:index_weights] || {}
@@ -678,7 +678,6 @@ module ThinkingSphinx
         if key.is_a?(Class)
           name = ThinkingSphinx::Index.name_for(key)
           hash["#{name}_core"]  = weights[key]
-          hash["#{name}_delta"] = weights[key]
         else
           hash[key] = weights[key]
         end

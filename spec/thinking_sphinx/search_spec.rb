@@ -148,7 +148,7 @@ describe ThinkingSphinx::Search do
       @results = [] # to confirm same object
       ThinkingSphinx.stub!(:search => @results)
       
-      ThinkingSphinx::Search.search.object_id.should == @results.object_id
+      ThinkingSphinx.search.object_id.should == @results.object_id
     end
   end
   
@@ -157,7 +157,7 @@ describe ThinkingSphinx::Search do
       @results = [] # to confirm same object
       ThinkingSphinx.stub!(:search_for_ids => @results)
       
-      ThinkingSphinx::Search.search_for_ids.object_id.
+      ThinkingSphinx.search_for_ids.object_id.
         should == @results.object_id
     end
   end
@@ -167,7 +167,7 @@ describe ThinkingSphinx::Search do
       @results = [] # to confirm same object
       ThinkingSphinx.stub!(:search_for_id => @results)
       
-      ThinkingSphinx::Search.search_for_id.object_id.
+      ThinkingSphinx.search_for_id.object_id.
         should == @results.object_id
     end
   end
@@ -177,7 +177,7 @@ describe ThinkingSphinx::Search do
       @results = [] # to confirm same object
       ThinkingSphinx.stub!(:count => @results)
       
-      ThinkingSphinx::Search.count.object_id.should == @results.object_id
+      ThinkingSphinx.count.object_id.should == @results.object_id
     end
   end
   
@@ -186,7 +186,7 @@ describe ThinkingSphinx::Search do
       @results = [] # to confirm same object
       ThinkingSphinx.stub!(:facets => @results)
       
-      ThinkingSphinx::Search.facets.object_id.should == @results.object_id
+      ThinkingSphinx.facets.object_id.should == @results.object_id
     end
   end
   
@@ -244,7 +244,7 @@ describe ThinkingSphinx::Search do
     
     it "should use the requested classes to generate the index argument" do
       @client.should_receive(:query) do |query, index, comment|
-        index.should == 'alpha_core,beta_core,beta_delta'
+        index.should == 'alpha_core,beta_core'
       end
       
       ThinkingSphinx::Search.new(:classes => [Alpha, Beta]).first
@@ -731,11 +731,10 @@ describe ThinkingSphinx::Search do
         @client.index_weights.should == {'foo' => 100}
       end
       
-      it "should convert classes to their core and delta index names" do
+      it "should convert classes to their core index name" do
         ThinkingSphinx::Search.new(:index_weights => {Alpha => 100}).first
         @client.index_weights.should == {
-          'alpha_core'  => 100,
-          'alpha_delta' => 100
+          'alpha_core'  => 100
         }
       end
     end
@@ -1118,7 +1117,7 @@ describe ThinkingSphinx::Search do
     
     it "should add both core and delta indexes for given classes" do
       ThinkingSphinx::Search.new(:classes => [Alpha, Beta]).indexes.
-        should == 'alpha_core,beta_core,beta_delta'
+        should == 'alpha_core,beta_core'
     end
     
     it "should respect the :index option" do

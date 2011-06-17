@@ -76,22 +76,9 @@ describe ThinkingSphinx::Index do
     end
   end
   
-  describe '#delta_name' do
-    it "should take the index's name and append _delta" do
-      ThinkingSphinx::Index.new(Alpha).delta_name.should == 'alpha_delta'
-    end
-  end
-  
   describe '#all_names' do
     it "should return the core index name by default" do
       ThinkingSphinx::Index.new(Alpha).all_names.should == ['alpha_core']
-    end
-    
-    it "should return both core and delta names if deltas are enabled" do
-      index = ThinkingSphinx::Index.new(Alpha)
-      index.delta_object = stub('delta')
-      
-      index.all_names.should == ['alpha_core', 'alpha_delta']
     end
     
     it "should respect custom names" do
@@ -100,30 +87,9 @@ describe ThinkingSphinx::Index do
       
       index.all_names.should == ['custom_core']
     end
-    
-    it "should respect custom names when deltas are enabled" do
-      index = ThinkingSphinx::Index.new(Alpha)
-      index.name = 'custom'
-      index.delta_object = stub('delta')
-      
-      index.all_names.should == ['custom_core', 'custom_delta']
-    end
   end
   
   describe '#to_riddle' do
-    it "should return two Riddle indexes if deltas are disabled" do
-      index = ThinkingSphinx::Index.new(Alpha)
-      
-      index.to_riddle(0).length.should == 2
-    end
-    
-    it "should return three Riddle indexes if deltas are enabled" do
-      index = ThinkingSphinx::Index.new(Beta)
-      index.delta_object = stub('delta')
-      
-      index.to_riddle(0).length.should == 3
-    end
-    
     it "should include a distributed index" do
       index = ThinkingSphinx::Index.new(Alpha)
       
@@ -147,18 +113,6 @@ describe ThinkingSphinx::Index do
       end
     end
     
-    context 'delta index' do
-      before :each do
-        index = ThinkingSphinx::Index.new(Beta)
-        index.delta_object = stub('delta')
-        @index = index.to_riddle(0)[1]
-      end
-      
-      it "should use the delta name" do
-        @index.name.should == 'beta_delta'
-      end
-    end
-    
     context 'distributed index' do
       it "should use the index's name" do
         index = ThinkingSphinx::Index.new(Alpha)
@@ -170,13 +124,6 @@ describe ThinkingSphinx::Index do
         index = ThinkingSphinx::Index.new(Alpha)
 
         index.to_riddle(0).last.local_indexes.should include('alpha_core')
-      end
-      
-      it "should add the delta index if there is one" do
-        index = ThinkingSphinx::Index.new(Beta)
-        index.delta_object = stub('delta')
-
-        index.to_riddle(0).last.local_indexes.should include('beta_delta')
       end
     end
   end

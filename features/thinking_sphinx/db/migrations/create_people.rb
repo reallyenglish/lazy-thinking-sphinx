@@ -9,5 +9,4 @@ ActiveRecord::Base.connection.create_table :people, :force => true do |t|
   t.column :postcode,       :string
   t.column :email,          :string
   t.column :birthday,       :datetime
-  t.column :delta, :boolean, :null => false, :default => false
 end

@@ -205,7 +205,6 @@ describe ThinkingSphinx::Index::Builder do
     before :each do
       @index = ThinkingSphinx::Index::Builder.generate(Beta) do
         indexes :name
-        has delta, :facet => true
       end
       
       @source = @index.sources.first
@@ -215,8 +214,8 @@ describe ThinkingSphinx::Index::Builder do
       Beta.sphinx_facets.delete_at(-1)
     end
     
-    it "should have just one attribute alongside the internal ones" do
-      @source.attributes.length.should == 1 + internal_attribute_count
+    it "should have just 0 attribute alongside the internal ones" do
+      @source.attributes.length.should == internal_attribute_count
     end
   end
   
@@ -360,8 +359,6 @@ describe ThinkingSphinx::Index::Builder do
           has birthday
           has id, :as => :internal_id
         
-          set_property :delta => true
-        
           where "birthday <= NOW()"
           group_by "first_name"
         end
@@ -447,28 +444,6 @@ describe ThinkingSphinx::Index::Builder do
     
     it "should store non-Sphinx settings for the index" do
       @index.local_options[:group_concat_max_len].should == 1024
-    end
-  end
-  
-  describe "delta options" do
-    before :each do
-      @index = ThinkingSphinx::Index::Builder.generate(Person) do
-        indexes first_name
-        
-        set_property :delta => true
-      end
-    end
-    
-    it "should not keep the delta setting in source options" do
-      @index.sources.first.options.should be_empty
-    end
-    
-    it "should not keep the delta setting in index options" do
-      @index.local_options.should be_empty
-    end
-    
-    it "should set the index delta object set" do
-      @index.delta_object.should be_a_kind_of(ThinkingSphinx::Deltas::DefaultDelta)
     end
   end
   

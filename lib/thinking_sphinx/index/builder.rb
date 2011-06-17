@@ -25,8 +25,7 @@ module ThinkingSphinx
         index.name = name unless name.nil?
         
         Builder.new(index, &block) if block_given?
-        
-        index.delta_object = ThinkingSphinx::Deltas.parse index
+
         index
       end
       
@@ -191,13 +190,10 @@ module ThinkingSphinx
         source.groupings += args
       end
       
-      # This is what to use to set properties on the index. Chief amongst
-      # those is the delta property - to allow automatic updates to your
-      # indexes as new models are added and edited - but also you can
-      # define search-related properties which will be the defaults for all
+      # This is what to use to set properties on the index. 
+      # Define search-related properties which will be the defaults for all
       # searches on the model.
       # 
-      #   set_property :delta => true
       #   set_property :field_weights => {"name" => 100}
       #   set_property :order => "name ASC"
       #   set_property :select => 'name'
@@ -211,18 +207,6 @@ module ThinkingSphinx
       #
       #   set_property :latitude_attr => "lt", :longitude_attr => "lg"
       # 
-      # Please don't forget to add a boolean field named 'delta' to your
-      # model's database table if enabling the delta index for it.
-      # Valid options for the delta property are:
-      # 
-      # true
-      # false
-      # :default
-      # :delayed
-      # :datetime
-      # 
-      # You can also extend ThinkingSphinx::Deltas::DefaultDelta to implement 
-      # your own handling for delta indexing.
       # 
       def set_property(*args)
         options = args.extract_options!

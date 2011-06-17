@@ -1,6 +1,5 @@
 class ThinkingSphinx::Test
-  def self.init(suppress_delta_output = true)
-    set_flags suppress_delta_output
+  def self.init
     create_indexes_folder
   end
   
@@ -41,12 +40,6 @@ class ThinkingSphinx::Test
   
   def self.index(*indexes)
     config.controller.index *indexes
-  end
-  
-  def self.set_flags(suppress_delta_output)
-    ::ThinkingSphinx.deltas_enabled        = true
-    ::ThinkingSphinx.updates_enabled       = true
-    ::ThinkingSphinx.suppress_delta_output = suppress_delta_output
   end
   
   def self.create_indexes_folder

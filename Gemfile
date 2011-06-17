@@ -2,7 +2,6 @@ source 'http://rubygems.org'
  
 gem 'activerecord', '>= 1.15.6', '< 3.0.0'
 gem 'riddle',       '>= 1.3.3'
-gem 'after_commit', '>= 1.0.7'
 
 group :development do
   gem 'mysql',              '2.8.1'
